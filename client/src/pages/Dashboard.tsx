@@ -1,34 +1,54 @@
-import { Card } from "../components/ui/Card";
-import { useAuthStore } from "../store/authStore";
-import { Sprout, HeartPulse, Wallet } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Sprout, HeartPulse, Wallet, ChevronRight, Droplets, Store, Stethoscope } from "lucide-react";
+import { Card } from "../components/ui/Card";
+import { PageHeader } from "../components/ui/PageHeader";
+import { useAuthStore } from "../store/authStore";
+import { useLangStore } from "../store/langStore";
+
+const domains = [
+  { to: "/agriculture", title: "Farming", description: "Irrigation, yield, markets, crop health", icon: Sprout, accent: "bg-emerald-50 text-emerald-700" },
+  { to: "/health", title: "Health", description: "Preliminary health guidance", icon: HeartPulse, accent: "bg-sky-50 text-sky-700" },
+  { to: "/finance", title: "Money", description: "Khatabook and financial health", icon: Wallet, accent: "bg-indigo-50 text-indigo-700" },
+];
+const quick = [
+  { to: "/agriculture/irrigation", label: "Irrigation", icon: Droplets },
+  { to: "/agriculture/market", label: "Markets", icon: Store },
+  { to: "/health/check", label: "Health check", icon: Stethoscope },
+];
 
 export default function Dashboard() {
   const user = useAuthStore((s) => s.user);
-
-  const modules = [
-    { to: "/agriculture", title: "Agriculture", desc: "Best mandi to sell, and crop disease detection", icon: Sprout, color: "bg-agri-light text-agri" },
-    { to: "/health", title: "Health", desc: "Symptom check and nearby care", icon: HeartPulse, color: "bg-health-light text-health" },
-    { to: "/finance", title: "Finance", desc: "Khatabook and financial health score", icon: Wallet, color: "bg-blue-50 text-finance" },
-  ];
-
+  const t = useLangStore((s) => s.t);
+  const name = user?.name?.split(" ")[0] || "there";
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-1">Welcome, {user?.name || "farmer"} 👋</h1>
-      <p className="text-gray-500 mb-8">Here's your Jan Setu overview.</p>
-      <div className="grid md:grid-cols-3 gap-5">
-        {modules.map((m) => (
-          <Link key={m.to} to={m.to}>
-            <Card className="hover:shadow-md transition-shadow h-full">
-              <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-4 ${m.color}`}>
-                <m.icon size={20} />
+      <PageHeader title={`${t("dashboard.hello")}, ${name}`} description={t("dashboard.choose")} />
+      <section className="space-y-2.5 mb-8" aria-label="Services">
+        {domains.map((d) => (
+          <Link key={d.to} to={d.to} className="block group focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 rounded-2xl">
+            <Card className="group-hover:shadow transition-shadow">
+              <div className="flex items-center gap-3.5">
+                <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${d.accent}`}><d.icon size={20} aria-hidden="true" /></div>
+                <div className="flex-1 min-w-0">
+                  <h2 className="font-semibold text-gray-900 text-[15px]">{d.title}</h2>
+                  <p className="text-sm text-gray-500 mt-0.5 truncate">{d.description}</p>
+                </div>
+                <ChevronRight size={18} className="text-gray-300 group-hover:text-gray-500 shrink-0" aria-hidden="true" />
               </div>
-              <h2 className="font-semibold text-lg mb-1">{m.title}</h2>
-              <p className="text-gray-500 text-sm">{m.desc}</p>
             </Card>
           </Link>
         ))}
-      </div>
+      </section>
+      <section aria-label="Quick actions">
+        <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2.5">Quick actions</h2>
+        <div className="grid grid-cols-3 gap-2">
+          {quick.map((a) => (
+            <Link key={a.to} to={a.to} className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl bg-white border border-gray-100 text-xs font-medium text-gray-700 hover:bg-gray-50 min-h-[72px]">
+              <a.icon size={20} className="text-gray-500" aria-hidden="true" />{a.label}
+            </Link>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
